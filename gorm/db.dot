@@ -1,0 +1,150 @@
+digraph g{
+    node [shape=record]
+
+    {
+        DB [
+            label="{<f0> Config|Error|RowsAffected|<f1>Statement|clone}",
+            xlabel="DB"
+        ]
+
+        Config [
+            label="{<f0>ConnPool|<f1>Dialector|<f3> Plugins|<f2>callbacks|<f3> CacheStore|<f4>ClauseBuilders}",
+            xlabel="Config"
+        ]
+
+        Config:f4 -> mysql
+
+        Statement [
+            label="{<f0> *DB|TableExpr|Table|<f3>Model(any)|<f4>Clauses|<f5>Dest(any)|Preload|SQL|Vars|<f10>Schema|<f11>ReflectValue|<f12>BuildClauses []string|...}", xlabel="Statement"
+        ]
+    
+    }
+
+    {
+        subgraph cluster_driver {
+            label="driver, cluser build source rank 1"
+            style=dashed
+            rankdir=TB
+
+            {rank=source; mysql;}
+            {rank=same; sqllite;}
+
+            mysql [
+                label="{{ON CONFLICT}| {VALUES} | {FOR }} | {clause.ClauseBuilder}"
+                xlabel="MySQL"
+            ]
+
+            sqllite [
+                label="{{INSERT}|{LIMIT}|{FOR}}|{clause.ClauseBuiler}"
+                xlabel="SqlLite"
+            ]
+
+        }
+
+    }
+
+
+    Clause [
+        label="{Name|BeforeExpression|AfterExpression|Expression|Builder}"
+        xlabel="clause"
+    ]
+
+    Clauses [
+        label="{Insert|GroupBy | Return | OnConflict|RETURNING}|{<f1>*Cluase}"
+    ]
+
+    Clauses:f1 -> Clause:nw
+    Statement:f4 -> Clauses
+
+    schema [
+        label="{<f0> FieldsWithDefaultDBValue| <f1> Relationships | <f2> CreateClauses | <f3> QueryClauses | <f4> Fields ([]*Fields) | ...}"
+        xlabel="schema"
+    ]
+
+    Statement:f10 -> schema
+
+    Field [
+        label="{DataType|GORMDataType|Tag | <f4> *Schema |...}"
+        xlabel="Field"
+    ]
+
+    Relationships [
+        label="{HasOne|BelongsTo|HasMany|Many2Many|Relations|...}"
+        xlabel="Relationships"
+    ]
+
+
+    Field:f4:w -> schema
+    schema:f1 -> Relationships
+    schema:f4:e -> Field:ne
+
+    callbacks [
+        label="{create | query | update |delete | row } |<f6> processor}"
+        
+        xlabel="callbacks"
+    ]
+
+    callback [
+        label="{name|before|after|remove|replace|match|handler|<f-1>processor}"
+        xlabel="callback"
+    ]
+
+    processor [
+        label="{<d0>*DB|<f0>Clauses([]string)|<f1>fns([]func(*DB)|<f2>callbacks([]*callback)}"
+        xlabel="processor"
+    ]
+
+    subgraph cluster_default_clause {
+        label="default clause"
+        clausesCreate [
+            label="{INSERT|VALUES|ON CONFLICT}"
+            xlabel="create"
+        ]
+
+        clausesQuery [
+            label="{SELECT|FROM|WHERE|GROUP BY|ORDER BY|LIMIT|FOR}"
+            xlabel="query"
+        ]
+        clausesUpdate [
+            label="{UPDATE|SET|WHERE}"
+            xlabel="update"
+        ]
+        clausesDelete [
+            label="{DELETE|FROM|WHERE}"
+            xlabel="delete"
+        ]
+    }
+
+
+
+    # processor:f0 -> {clausesCreate, clausesDelete, clausesQuery,clausesUpdate} [style=dashed]
+    Statement:f12 -> {clausesCreate, clausesDelete, clausesQuery,clausesUpdate} [style=dashed]
+
+    # Statement:f12 -> processor:f0
+
+    {
+        subgraph cluster_biz {
+            label="biz struct"
+            tableEntity [
+                style="dashed"
+            ]
+            Container [
+                style="dashed"
+            ]
+        }
+    }
+
+
+
+    Statement:f5 -> Container
+    Statement:f3 -> tableEntity
+
+    processor:f2 -> callback
+
+    Config:f2 -> callbacks
+    callbacks:f6 -> processor
+
+    DB:f0 -> Config
+    DB:f1 -> Statement
+    Statement:f0 -> DB
+}
