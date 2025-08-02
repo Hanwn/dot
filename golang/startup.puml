@@ -1,0 +1,11 @@
+@startuml golang_startup
+participant _rt0_linux_amd64  
+participant rt0_amd64
+participant "runtime.rt0_go" as rt0_go
+
+_rt0_linux_amd64 -> rt0_amd64
+rt0_amd64->rt0_go
+
+
+
+@enduml

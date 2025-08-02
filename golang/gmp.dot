@@ -1,0 +1,62 @@
+digraph g {
+    node [shape=record]
+    rankdir="LR"
+    splines=true
+
+    allgs [label="{<f0>||||}", xlabel="allgs"]
+
+    g [label="<f0>stack|stackguard0|stackguard1|<m>*m|<f1>shced|...|gcAssistBytes", xlabel="g"]
+    stack [label="lo|hi", xlabel="stack"]
+    gobuf [label="sp|pc|g|ctx|ret|lr|bp", xlabel="gobuf"]
+
+    allgs -> g:w
+    g:f0 -> stack:nw
+    g:f1 -> gobuf:nw
+
+
+    m [label="<g>g0(*g)|<f0>morebuf|<f1>tls|<f2>curg|p|nextp|oldp|incgo|park|vdso|mOS|...", xlabel="m"]
+    tls [label="{|||||}", xlabel="tls"]
+    m:f0 -> gobuf
+    m:f1 -> tls
+
+    p [label="id|status|<m>m|<mcache>mcache|<pcache>pcache|runqhead|runqtail|<runq>runq|<sudog>sudogcache|mspancache|<timers>timers|...", xlabel="p"]
+    mcache [label="nextSample|scanAlloc|...|alloc|stackcache", xlabel="mcache"]
+    // mspan [label="next|prev|list|...", xlabel="mspan"]
+    pcache [label="base|cache|scav", xlabel="pagecache"]
+    runq [label="{|...|}", xlabel="runq"]
+    sudog [label="g|<next>next|<prev>prev|elem|...|c", xlabel="sudog"]
+    sudog1 [label="g|<next>next|<prev>prev|elem|...|c", xlabel="sudog"]
+    sudog:next -> sudog1:nw
+    sudog1:prev -> sudog:se
+
+    timers [label="mu|heap|...", xlabel="timers"]
+    p:timers -> timers
+
+    p:mcache -> mcache
+    p:pcache -> pcache
+    p:runq -> runq
+    p:sudog -> sudog
+
+
+
+    // memory [label="|||||||||||", xlabel="memory"]
+
+
+    m:f2 -> g
+    g:m -> m
+    p:m -> m
+
+    subgraph cluster_runtime_var {
+        label = "global var"
+        allgs [label="{<f0>||...||}", xlabel="allgs"]
+        m0 [label="m0"]
+        g0 [label="g0"]
+        mcache0 [label="mcache0"]
+    }
+    g0 -> g
+    m0 -> m
+    mcache0 -> mcache
+
+
+
+}
