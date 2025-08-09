@@ -1,0 +1,33 @@
+digraph g {
+
+    rankdir="LR"
+    node [ shape = record ] memeory, g, stack, gobuf;
+    node [shape=none] Rsp, Rip, DI, SI;
+
+    memeory [label="...|NULL|...|auxv[m - 1]|NULL|...|*env[n - 1]|NULL|...|<argv>*argv[argc - 1]|<argc>argc|||<cpargv>copy argv[argc - 1]|<cpargc>cpoy argc||...|<lo> 64 * 1024 + rsp|...|<text>text area||", xlabel="memory"]
+
+    memeory:argc:e -> memeory:cpargc:e [style="dashed"]
+    memeory:argv:e -> memeory:cpargv:e [style="dashed"]
+
+
+    g [label="<stack>stack|<guard0>stackguard0|<guard1>stackguard1|<m>*m|<f1>shced|...|gcAssistBytes", xlabel="g0"]
+    stack [label="<hi>hi|<lo>lo", xlabel="stack"]
+    gobuf [label="sp|pc|g|ctx|ret|lr|bp", xlabel="gobuf"]
+
+    g:stack -> stack
+    g:f1 -> gobuf
+    g:guard0 -> memeory:lo:sw
+    g:guard1 -> memeory:lo:sw
+
+    stack:lo -> memeory:lo:sw
+    stack:hi -> memeory:cpargc:sw
+
+
+    Rsp -> memeory:cpargc:sw
+    DI -> memeory:argc:sw
+    SI -> memeory:argv:sw
+    Rip -> memeory:text:sw
+
+
+
+}
