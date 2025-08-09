@@ -1,0 +1,11 @@
+digraph g {
+
+    node [shape=record]
+    rankdir=LR
+
+    session [
+        label="||||"
+        xlabel="session"
+    ]
+
+}
