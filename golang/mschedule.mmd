@@ -1,0 +1,40 @@
+---
+config:
+  theme: redux-color
+  look: neo
+---
+sequenceDiagram
+  box father thread
+  participant sc0 as schedule
+  participant wakep as wakep
+  participant startm as startm
+  participant mget as mget
+  participant newm as newm
+  participant newosproc as newosproc
+  end
+  box os
+  participant clone
+  end 
+  box rgba(13,166,199, 0.1) child thread
+  participant mstart
+  participant mstart1
+  participant schedule as schedule
+  end
+  autonumber
+  sc0 ->> wakep:execute
+  wakep ->> +startm:get one m to run p
+
+  startm ->> mget: get a free m
+  alt m is nil
+    startm ->> +newm: create a new m struct
+    newm ->> +newosproc: create os thread
+    newosproc ->>+ clone: syscall clone
+    clone ->>- newosproc: father thread return
+    newosproc ->> - newm:return
+    newm ->> -startm:return
+    clone ->> mstart: child thread execute
+    mstart ->> mstart1: call
+    mstart1 ->> schedule: init m and schedule
+  end
+  startm ->> -wakep:returnz
+

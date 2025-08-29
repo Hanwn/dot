@@ -1,0 +1,55 @@
+digraph g {
+
+    node [shape=record]
+    rankdir=LR
+
+    hchan [
+        label="<f0> qcount|datasiz|buf|elemsize|synctest|closed|<f6>timer|<f7>elemtype|sendx|<f9>recvx|<f10>recvq|<f11>sendq|lock"
+        xlabel="hchan"
+    ]
+
+    waitq [
+        label = "<f0>first|<f1>last"
+        xlabel="waitq"
+    ]
+
+    timer [
+        label = "isChan|isFake|f|<f4>ts|..."
+        xlabel = "timer"
+    ]
+
+    timers [
+        label = "mu|heap []timerWhen|..."
+        xlabel = "times"
+    ]
+
+    timer:f4 -> timers
+
+    type [
+        label = "Size|Hash|GCData|..."
+        xlabel = "Type"
+    ]
+
+    hchan:f6 -> timer
+    hchan:f7 -> type
+
+    sudog [
+        label = "<f0>g|<f1>next|<f-1>prev|<f2>elem|...|<f3>parent|<f4>waitlink|<f5>waittail|<f6>c"
+        xlabel = "sudog"
+    ]
+
+    sudog1 [
+        label = "<f0>g|<f1>next|<f-1>prev|<f2>elem|...|<f3>parent|<f4>waitlink|<f5>waittail|<f6>c"
+        xlabel = "sudog"
+    ]
+
+    sudog:f1 -> sudog1:n
+    sudog1:"f-1" -> sudog:e
+
+    waitq:f0 -> sudog
+    waitq:f1 -> sudog
+
+    hchan:f10 -> waitq
+    hchan:f11 -> waitq
+
+}

@@ -1,0 +1,6 @@
+@startuml
+
+"runtime::main" -> "runtime::newm"
+"runtime::main" -> "x"
+
+@enduml
